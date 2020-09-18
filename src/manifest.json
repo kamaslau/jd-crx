@@ -1,0 +1,39 @@
+{
+  "manifest_version": 2,
+  "name": "京东分析师",
+  "version": "0.0.1",
+  "description": "京东谷歌浏览器插件，从京东网图书商品详情页采集高清商品图、ISBN号（即国产商品条形码，13位）、书名、标价等信息。",
+  "author": "Kamas Lau<kamaslau@dingtalk.com>",
+  "homepage_url": "https://www.liuyajie.com/",
+
+  "icons": {
+    "128": "image/128x128.png"
+  },
+
+  "page_action": {
+    "default_title": "京东分析师",
+    "default_popup": "index.html"
+  },
+
+  "background": {
+    "scripts": ["js/background.js"],
+    "persistent": false
+  },
+
+  "content_scripts": [{
+    "js": ["js/jd.js"],
+    "run_at": "document_end",
+    "matches": ["*://item.jd.com/*"]
+  }],
+
+  "permissions": [
+    "declarativeContent",
+    "storage",
+    "activeTab",
+    "*://*.liuyajie.com/"
+  ],
+
+  "options_page": "options.html",
+
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net;object-src 'self'"
+}

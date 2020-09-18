@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang=zh-cn>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=0">
+
+  <link rel="stylesheet" href="https://cdn.liuyajie.com/normalize.css/normalize.css">
+  <link rel="stylesheet" href="https://cdn.liuyajie.com/bootstrap/4.5.2/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.liuyajie.com/fontawesome/5.12.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div id="app">
+    <!--
+      <header>
+        <figure>
+          <img src="image/branding.png">
+
+          <figcaption>
+              <p><a href="image/qrcode.jpg" target="_blank">冰山书榜</a>京东分析师</p>
+          </figcaption>
+        </figure>
+      </header>
+    -->
+
+    <!-- 操作反馈 -->
+    <div v-show="message" id="screen" :class="message_class">
+      <p id="message">{{ message }}</p>
+    </div>
+
+    <main>
+      <div id="content" class="container">
+        <!-- 图片预览 -->
+        <div id="images">
+          <p v-if="images.length < 1" class="alert">尚无图片</p>
+
+          <ul v-else class="row">
+            <li v-for="(image, index) in images" class="col-3" :key="'image-' + index">
+              <figure>
+                <a :title="item.name" :href="image" target="_blank">
+                  <img :src="image" :alt="item.name" />
+                </a>
+              </figure>
+
+              <!-- 操作 -->
+              <div v-if="images.length > 1" class="image-resorter">
+                <span v-if="index < 3" alt="保留此前项（含）" @click.stop="keep_until(index)">
+                  <i class="fal fa-map-pin"></i>
+                </span>
+
+                <span v-if="index > 0" alt="前移" @click.stop="move_item(index, -1)">
+                  <i class="fal fa-chevron-left"></i>
+                </span>
+                <span alt="删除" @click.stop="move_item(index)">
+                  <i class="fal fa-times"></i>
+                </span>
+                <span v-if="(index+1) < images.length" alt="后移" @click.stop="move_item(index, 1)">
+                  <i class="fal fa-chevron-right"></i>
+                </span>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <form>
+          <!-- 图片 -->
+          <fieldset id="images-fieldset">
+            <!-- 主图 -->
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fal fa-image"></i></span>
+                </div>
+
+                <input v-model.trim.lazy="item.image_main_url" class="form-control" placeholder="主图">
+              </div>
+            </div>
+
+            <!-- 形象图 -->
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fal fa-images"></i></span>
+                </div>
+
+                <input v-model.trim.lazy="item.image_figure_urls" class="form-control" placeholder="形象图">
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <!-- 条形码 -->
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend" @click="getBarcode">
+                  <span class="input-group-text"><i class="fal fa-barcode"></i></span>
+                </div>
+
+                <input size="13" name="barcode" v-model.trim.lazy="item.barcode" @change="getItem(event.target.value)"
+                  class="form-control" placeholder="条形码/ISBN号；13位数字" required>
+
+                <div class="input-group-append">
+                  <button class="btn btn-outline-dark" title="智能解析：从DOM中解析条形码，并请求API以判断是否已有相应数据记录"
+                    @click="tryBarcode"><i class="fal fa-file-search"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 名称 -->
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fal fa-book"></i></span>
+                </div>
+
+                <input v-model.trim.lazy="item.name" class="form-control" placeholder="标题；最多50个字符" required>
+              </div>
+            </div>
+
+            <!-- 标价 -->
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fal fa-tag"></i></span>
+                </div>
+
+                <input v-model.trim.lazy="item.tag_price" type="number" step="0.01" min="0.01" class="form-control"
+                  placeholder="原价/标价" required>
+              </div>
+            </div>
+
+            <!-- 出版社 -->
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fal fa-building"></i></span>
+                </div>
+
+                <input v-model.trim.lazy="item.publisher" class="form-control" placeholder="出版社">
+              </div>
+            </div>
+
+            <!-- 作者 -->
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fal fa-user"></i></span>
+                </div>
+
+                <input v-model.trim.lazy="item.author" class="form-control" placeholder="作者；[国籍]、〔朝代〕（若有）">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <!-- 开本 -->
+              <div class="form-group col">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fal fa-ruler-combined"></i></span>
+                  </div>
+
+                  <input v-model.trim.lazy="item.format" type="number" step="1" min="1" max="128" class="form-control"
+                    placeholder="开本" required>
+                </div>
+              </div>
+
+
+              <!-- 销售件数 -->
+              <div class="form-group col">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fal fa-copy"></i></span>
+                  </div>
+
+                  <input v-model.trim.lazy="item.unit_copy" type="number" value="1" step="1" min="1" max="99999"
+                    class="form-control" placeholder="销售件数" required>
+                </div>
+              </div>
+
+              <!-- 出版时间 -->
+              <div class="form-group col">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fal fa-calendar"></i></span>
+                  </div>
+
+                  <input v-model.trim.lazy="item.time_publish" class="form-control" placeholder="出版时间；YYYY,MM">
+                </div>
+              </div>
+            </div>
+
+            <!-- 宣传语 -->
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fal fa-book"></i></span>
+                </div>
+
+                <input v-model.trim.lazy="item.slogan" class="form-control" placeholder="宣传语；最多40个字符">
+              </div>
+            </div>
+
+            <!-- 描述 -->
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fal fa-book"></i></span>
+                </div>
+
+                <input v-model.trim.lazy="item.description" class="form-control" placeholder="描述；最多20000个字符">
+              </div>
+            </div>
+
+          </fieldset>
+
+          <!-- 京东相关 -->
+          <fieldset>
+            <!-- 京东ID -->
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">京东ID</span>
+                </div>
+
+                <input v-model.trim.lazy="item.jd_id" class="form-control" placeholder="京东ID">
+
+                <div class="input-group-append">
+                  <a title="打开京东页面" :href="item.jd_url" class="btn btn-outline-dark" target="_blank">
+                    <i class="fal fa-external-link"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+
+        <!-- 可用操作区 -->
+        <ul id="item-ops">
+
+          <li><button class="btn btn-light btn-block" title="强制解析：直接从DOM中解析所有信息" @click="dom_get_brief"><i
+                class="fad fa-file-alt"></i></button></li>
+
+          <li><button class="btn btn-light btn-block" title="清空表单" @click="resetAll"><i
+                class="fad fa-eraser"></i></button></li>
+
+          <li><button class="btn btn-dark btn-block" title="保存数据" @click="saveData"><i class="fad fa-save"></i></button>
+          </li>
+        </ul>
+
+      </div>
+
+    </main>
+
+    <footer id="footer">
+      <div class="container">
+        <p>&copy;{{ current_year }} <a href="https://www.liuyajie.com/" target="_blank">刘亚杰</a></p>
+
+        <a href="/options.html" target="_blank"><i class="fal fa-cog"></i> 设置</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="js/index.js"></script>
+</body>
+
+</html>

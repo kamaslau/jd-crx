@@ -1,0 +1,176 @@
+html {
+  font-size: 16px;
+  width: 30rem;
+  height: 100vh;
+}
+
+body {
+  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+#images ul {
+  overflow-x: scroll;
+  flex-wrap: nowrap;
+}
+
+li {
+  padding: 0;
+}
+
+.row {
+  margin: 0;
+}
+
+.row>* {
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a:hover {
+  background-color: #efefef;
+}
+
+p {
+  margin-bottom: 0;
+}
+
+.form-group * {
+  font-size: .875rem;
+  height: 2.25rem;
+  line-height: 2.25rem;
+}
+
+label {
+  margin-bottom: 0;
+}
+
+input {
+  text-align: right;
+  padding: .5rem .75rem;
+  flex-grow: 1;
+}
+
+.container {
+  width: 95%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+figure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  margin: 0 auto;
+}
+
+figure>* {
+  display: block;
+}
+
+img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+figcaption {
+  color: #999;
+  font-size: .75rem;
+  margin-top: .5rem;
+}
+
+main {
+  padding: .5rem;
+}
+
+#footer {
+  margin-top: auto;
+}
+
+#footer .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#footer p {
+  color: #999;
+}
+
+#item-ops {
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+}
+
+#item-ops li {
+  flex-grow: 1;
+}
+
+/* 图片预览器 */
+#images {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+#images li {
+  margin-right: .625rem;
+  position: relative;
+}
+
+/* 图片排序器（含移出序列（即删除）） */
+.image-resorter {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, .5);
+}
+
+#images li:hover .image-resorter {
+  background-color: rgba(0, 0, 0, .75);
+}
+
+.image-resorter>* {
+  flex-grow: 1;
+}
+
+.image-resorter>*:hover {
+  box-shadow: inset 0 -1rem 1rem -1rem #fff;
+}
+
+#images-fieldset {
+  display: none;
+}
+
+/**
+* 操作反馈区
+*/
+#screen {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+#message {
+  text-align: center;
+}
